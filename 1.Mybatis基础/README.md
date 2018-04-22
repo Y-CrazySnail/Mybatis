@@ -2,19 +2,19 @@
 
 
 
-#### 写在前面的话
+###写在前面的话
 
 本次Mybatis基础基于购买商品形成订单的业务，业务逻辑不严谨，重心在于如何使用Mybatis
 
 <br>
 
-#### ER图
+###ER图
 
 ![](https://github.com/Y-CrazySnail/Mybatis/blob/master/Images/basics.png)
 
 <br>
 
-#### 准备数据库
+###准备数据库
 
 ```mysql
 -- 创建商品类别表--
