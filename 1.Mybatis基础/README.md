@@ -2,6 +2,8 @@
 
 
 
+<a href="#ER图">ER图</a>
+
 ### 写在前面的话
 
 本次Mybatis基础基于购买商品形成订单的业务，业务逻辑不严谨，重心在于如何使用Mybatis
@@ -117,6 +119,7 @@ insert into order_item values(10,'002','002');
     </environments>
     <mappers>
         <mapper resource="com/pojo/Order.xml"/>
+        <mapper resource="com/pojo/Product.xml"/>
     </mappers>
 </configuration>
 ```
@@ -167,6 +170,7 @@ public class Product {
     private String id;
     private String name;
     private float price;
+    private String cid;
     private Category category;
 
     public String getId() {
@@ -191,6 +195,14 @@ public class Product {
 
     public void setPrice(float price) {
         this.price = price;
+    }
+    
+    public String getCid() {
+        return cid;
+    }
+
+    public void setCid(String cid) {
+        this.cid = cid;
     }
 
     public Category getCategory() {
