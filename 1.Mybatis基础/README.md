@@ -291,13 +291,15 @@ public class OrderItem {
 
 <br>
 
+
+
 ### 配置XML映射文件
 
 - ```<resultMap>```是最复杂也是最强大的元素，用来描述如何从数据库结果集中来加载对象。
 
 - ```<colloection>```和```<association>```的区别，前者是复杂类型的集，简单来说就是一对多关系；后者是一个复杂的类型关联;许多结果将包成这种类型，简单来说就是一对一关系。
 
--  **javaType和ofType**
+- **javaType和ofType**
 
   由于类型名重复导致的特殊处理：
 
@@ -331,9 +333,12 @@ public class OrderItem {
   | collection | Collection |
   | iterator   | Iterator   |
 
--  **property**：property所对应的值是JavaBean中的值
+### 复杂的查询
 
--  **column**：column所对应的值是```<select>```中查询到的值
+- **property**：property所对应的值是JavaBean中的值
+- **column**：column所对应的值是```<select>```中查询到的值
+
+**Order.xml:**
 
 ```xml
 <?xml version="1.0" encoding="utf-8" ?>
@@ -369,6 +374,70 @@ public class OrderItem {
         left join product_ as p on oi.pid=p.id
         left join category_ as c on p.cid=c.id
     </select>
+    <select id="selectOrderById" resultMap="orderBean" parameterType="string">
+        select o.*,oi.*,p.*,c.*,
+        o.id as 'oid',
+        p.id as 'pid',
+        p.name as 'pname',
+        c.id as 'cid',
+        c.name as 'cname'
+        from order_ as o
+        left join order_item as oi on o.id=oi.oid
+        left join product_ as p on oi.pid=p.id
+        left join category_ as c on p.cid=c.id
+        where o.id=#{id}
+    </select>
+    <select id="selectOrderByIdAndAddress" resultMap="orderBean" parameterType="map">
+        select o.*,oi.*,p.*,c.*,
+        o.id as 'oid',
+        p.id as 'pid',
+        p.name as 'pname',
+        c.id as 'cid',
+        c.name as 'cname'
+        from order_ as o
+        left join order_item as oi on o.id=oi.oid
+        left join product_ as p on oi.pid=p.id
+        left join category_ as c on p.cid=c.id
+        where o.id like concat('%',#{id},'%') and o.address like concat('%',#{address},'%')
+    </select>
+</mapper>
+```
+
+**Product.xml:**
+
+```java
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pojo">
+    <resultMap id="productBean" type="Product">
+        <id column="pid" property="id"/>
+        <result column="pname" property="name"/>
+        <result column="price" property="price"/>
+        <association property="category" javaType="Category">
+            <id column="oid" property="id"/>
+            <result column="cname" property="name"/>
+        </association>
+    </resultMap>
+    <insert id="addProduct" parameterType="Product">
+        insert into product_ values(#{id},#{name},#{price},#{cid})
+    </insert>
+    <select id="listProduct" resultMap="productBean">
+        select p.*,c.*,
+        p.id as 'pid',
+        p.name as 'pname',
+        c.id as 'cid',
+        c.name as 'cname'
+        from product_ as p
+        left join category_ as c on p.cid=c.id
+    </select>
+    <update id="updateProductPrice" parameterType="Product">
+        update product_ set price=#{price} where id=#{id}
+    </update>
+    <delete id="deleteProduct" parameterType="string">
+        delete from product_ where id=#{id}
+    </delete>
 </mapper>
 ```
 
@@ -389,8 +458,10 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
 
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 public class Test {
     public static void main(String[] args) throws Exception{
@@ -398,6 +469,17 @@ public class Test {
         InputStream inputStream=Resources.getResourceAsStream(resource);
         SqlSessionFactory sqlSessionFactory=new SqlSessionFactoryBuilder().build(inputStream);
         SqlSession sqlSession=sqlSessionFactory.openSession();
+//        listOrders(sqlSession);
+//        selectOrderById(sqlSession);
+//        selectOrderByIdAndAddress(sqlSession);
+//        addProduct(sqlSession);
+//        listProduct(sqlSession);
+//        updateProductPrice(sqlSession);
+//        deleteProduct(sqlSession);
+//        sqlSession.rollback();
+    }
+    //查询所有订单
+    private static void listOrders(SqlSession sqlSession){
         List<Order> orders=sqlSession.selectList("listOrder");
         System.out.println(orders);
         Iterator<Order> orderIterator=orders.iterator();
@@ -421,6 +503,103 @@ public class Test {
             System.out.println("--------------------------------");
         }
     }
+    //根据条件查找订单
+    private static void selectOrderById(SqlSession sqlSession){
+        Order order=sqlSession.selectOne("selectOrderById","002");
+        System.out.println(order);
+        System.out.println("订单编号："+order.getId());
+        System.out.println("收货地址："+order.getAddress());
+        List<OrderItem> orderItems=order.getOrderItems();
+        Iterator<OrderItem> orderItemIterator=orderItems.iterator();
+        while(orderItemIterator.hasNext()){
+            OrderItem orderItem=orderItemIterator.next();
+            Product product =orderItem.getProduct();
+            Category category = product.getCategory();
+            System.out.println("商品编号："+product.getId());
+            System.out.println("商品名称："+product.getName());
+            System.out.println("商品价格："+product.getPrice());
+            System.out.println("商品类别："+category.getName());
+            System.out.println("商品数量："+orderItem.getNumber());
+        }
+    }
+    //根据多条件模糊查找订单
+    private static void selectOrderByIdAndAddress(SqlSession sqlSession){
+        Map<String,Object> map=new HashMap<String,Object>();
+        map.put("id","01");
+        map.put("address","京");
+        List<Order> orders=sqlSession.selectList("selectOrderByIdAndAddress",map);
+        System.out.println(orders);
+        Iterator<Order> orderIterator=orders.iterator();
+        while(orderIterator.hasNext()){
+            Order order=orderIterator.next();
+            System.out.println("订单编号："+order.getId());
+            System.out.println("收货地址："+order.getAddress());
+            List<OrderItem> orderItems=order.getOrderItems();
+            Iterator<OrderItem> orderItemIterator=orderItems.iterator();
+            System.out.println(orderItems);
+            while(orderItemIterator.hasNext()){
+                OrderItem orderItem=orderItemIterator.next();
+                Product product=orderItem.getProduct();
+                System.out.println("商品编号："+product.getId());
+                System.out.println("商品名称："+product.getName());
+                System.out.println("商品价格："+product.getPrice()+"元");
+                System.out.println("商品数量："+orderItem.getNumber());
+                Category category=product.getCategory();
+                System.out.println("商品类别："+category.getName());
+            }
+            System.out.println("--------------------------------");
+        }
+        sqlSession.close();
+    }
+    /*
+    添加商品信息
+    商品编号：003
+    商品名称：Mac笔记本
+    商品价格：12888
+    商品类别编号：001
+     */
+    private static void addProduct(SqlSession sqlSession){
+        Product p=new Product();
+        p.setId("003");
+        p.setName("Mac笔记本");
+        p.setPrice(12888);
+        p.setCid("001");
+        sqlSession.insert("addProduct",p);
+        sqlSession.commit();
+        sqlSession.close();
+    }
+//    查询商品信息
+    private static void listProduct(SqlSession sqlSession){
+        List<Product> products=sqlSession.selectList("listProduct");
+        Iterator<Product> productIterator=products.iterator();
+        while(productIterator.hasNext()){
+            Product product=productIterator.next();
+            System.out.println(product.getId());
+            System.out.println(product.getName());
+            System.out.println(product.getPrice());
+            System.out.println(product.getCategory().getName());
+        }
+    }
+    /*
+    修改商品信息
+    将003号商品价格修改为11888
+     */
+    private static void updateProductPrice(SqlSession sqlSession){
+        Product product=new Product();
+        product.setId("003");
+        product.setPrice(11888);
+        sqlSession.update("updateProductPrice",product);
+        sqlSession.commit();
+        listProduct(sqlSession);
+    }
+    /*
+    删除商品信息
+     */
+    private static void deleteProduct(SqlSession sqlSession){
+        sqlSession.delete("deleteProduct","003");
+        sqlSession.commit();
+        listProduct(sqlSession);
+    }
 }
 ```
 
@@ -428,4 +607,7 @@ public class Test {
 
 ### 执行结果
 
+这里只展示了查询所有订单的执行结果
+
 ![](https://github.com/Y-CrazySnail/Mybatis/blob/master/Images/result1.png)
+
