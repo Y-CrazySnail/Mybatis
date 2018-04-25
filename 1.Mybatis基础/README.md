@@ -2,7 +2,7 @@
 
 
 
-<a href="#ER图">ER图</a>
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#er%E5%9B%BE">ER图</a>
 
 ### 写在前面的话
 
