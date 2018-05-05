@@ -2,7 +2,23 @@
 
 
 
-<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#er%E5%9B%BE">ER图</a>
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#er%E5%9B%BE">1、ER图</a>
+
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#%E5%87%86%E5%A4%87%E6%95%B0%E6%8D%AE%E5%BA%93">2、准备数据库</a>
+
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#%E5%87%86%E5%A4%87jar%E5%8C%85">3、准备jar包</a>
+
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#mybatis-configxml%E9%85%8D%E7%BD%AE">4、Mybatis-config.xml配置</a>
+
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#%E5%87%86%E5%A4%87java-bean">5、准备Java Bean</a>
+
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#%E9%85%8D%E7%BD%AExml%E6%98%A0%E5%B0%84%E6%96%87%E4%BB%B6">6、配置XML映射文件</a>
+
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#%E5%A4%8D%E6%9D%82%E7%9A%84%E6%9F%A5%E8%AF%A2">7、复杂查询</a>
+
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#%E6%B5%8B%E8%AF%95%E4%BB%A3%E7%A0%81">8、测试代码</a>
+
+<a href="https://github.com/Y-CrazySnail/Mybatis/tree/master/1.Mybatis%E5%9F%BA%E7%A1%80#%E6%89%A7%E8%A1%8C%E7%BB%93%E6%9E%9C">9、执行结果</a>
 
 ### 写在前面的话
 
