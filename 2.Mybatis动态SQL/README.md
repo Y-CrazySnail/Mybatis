@@ -205,3 +205,178 @@ public class Test {
 食品
 ```
 
+
+
+### set标签
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pojo">
+    <resultMap id="productBean" type="Product">
+        <id column="pid" property="id"/>
+        <result column="pname" property="name"/>
+        <result column="price" property="price"/>
+        <association property="category" javaType="Category">
+            <id column="oid" property="id"/>
+            <result column="cname" property="name"/>
+        </association>
+    </resultMap>
+    <update id="dynamicSQLSetUpdateProduct" parameterType="Product">
+        update product_
+        <set>
+            <if test="name!=null">
+                name=#{name}
+            </if>
+        </set>
+        where id=#{id}
+    </update>
+</mapper>
+```
+
+
+
+**测试代码：**
+
+```java
+public class Test {
+    public static void main(String[] args) throws Exception{
+        String resource = "mybatis-config.xml";
+        InputStream inputStream=Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory=new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession sqlSession=sqlSessionFactory.openSession();
+        dynamicSQLSetUpdateProduct(sqlSession);
+    }
+    private static void listProduct(SqlSession sqlSession){
+        List<Product> products=sqlSession.selectList("listProduct");
+        Iterator<Product> productIterator=products.iterator();
+        while(productIterator.hasNext()){
+            Product product=productIterator.next();
+            System.out.println(product.getId());
+            System.out.println(product.getName());
+            System.out.println(product.getPrice());
+            System.out.println(product.getCategory().getName());
+        }
+    }
+    private static void dynamicSQLSetUpdateProduct(SqlSession sqlSession) {
+        Product product = new Product();
+        product.setId("002");
+        product.setName("伊利牛奶");
+        sqlSession.update("dynamicSQLSetUpdateProduct",product);
+        sqlSession.commit();
+        listProduct(sqlSession);
+    }
+}
+```
+
+
+
+**执行结果：**
+
+```
+001
+iPhone X
+8888.0
+数码
+002
+伊利牛奶
+2.5
+食品
+```
+
+
+
+### trim标签
+
+```<set>```标签单独使用时，也会遇到像使用```<if>```标签时多个```and```的困扰，此时可以使用```<trim>```标签来解决
+
+```<prefix>```-前缀
+
+```<suffix>```-后缀
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pojo">
+    <resultMap id="productBean" type="Product">
+        <id column="pid" property="id"/>
+        <result column="pname" property="name"/>
+        <result column="price" property="price"/>
+        <association property="category" javaType="Category">
+            <id column="oid" property="id"/>
+            <result column="cname" property="name"/>
+        </association>
+    </resultMap>
+    <update id="dynamicSQLTrimSetUpdateProduct" parameterType="Product">
+        update product_
+        <trim prefix="set" suffixOverrides=",">
+            <if test="name!=null">
+                name=#{name},
+            </if>
+            <if test="price!=null">
+                price=#{price},
+            </if>
+        </trim>
+        where id=#{id}
+    </update>
+</mapper>
+```
+
+
+
+**测试代码：**
+
+```java
+public class Test {
+    public static void main(String[] args) throws Exception{
+        String resource = "mybatis-config.xml";
+        InputStream inputStream=Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory=new SqlSessionFactoryBuilder().build(inputStream);
+        SqlSession sqlSession=sqlSessionFactory.openSession();
+        dynamicSQLSetUpdateProduct(sqlSession);
+    }
+    private static void listProduct(SqlSession sqlSession){
+        List<Product> products=sqlSession.selectList("listProduct");
+        Iterator<Product> productIterator=products.iterator();
+        while(productIterator.hasNext()){
+            Product product=productIterator.next();
+            System.out.println(product.getId());
+            System.out.println(product.getName());
+            System.out.println(product.getPrice());
+            System.out.println(product.getCategory().getName());
+        }
+    }
+    private static void dynamicSQLTrimSetUpdateProduct(SqlSession sqlSession){
+        Product product=new Product();
+        product.setId("002");
+        product.setName("牛奶");
+        product.setPrice(Float.parseFloat("3.5"));
+        sqlSession.update("dynamicSQLTrimSetUpdateProduct",product);
+        sqlSession.commit();
+        listProduct(sqlSession);
+    }
+}
+```
+
+
+
+**执行结果：**
+
+```
+001
+iPhone X
+8888.0
+数码
+002
+牛奶
+3.5
+食品
+```
+
+
+
+### 
